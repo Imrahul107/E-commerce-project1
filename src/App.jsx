@@ -55,25 +55,18 @@ export const ProtectedRoute=({children})=>{
 }
 
 // admin 
-// export const ProtectedRouteForAdmin=({children})=>{
-//   const admin=JSON.parse(localStorage.getItem('user'));
-//   console.log(admin.user.email);
-//   if(admin.user.email==='admin123@gmail.com'){
-//     return children;
-//   }else{
-//     return <Navigate to='/login'/>
-//   }
-// };
+export const ProtectedRouteForAdmin=({children})=>{
 
-export const ProtectedRouteForAdmin = ({ children }) => {
-  const admin = JSON.parse(localStorage.getItem('user'));
-  console.log(admin.user.email);
-  if (admin.user.email === 'admin123@gmail.com') {
+
+const admin = JSON.parse(localStorage.getItem('user'));
+console.log('Admin:', admin);
+if (admin && admin.user && admin.user.email === 'admin123@gmail.com') {
     return children;
-  } else {
+} else {
     return <Navigate to='/login' />;
-  }
-};
+}
+}
+
 
 ProtectedRouteForAdmin.propTypes = {
   children: PropTypes.node.isRequired,
