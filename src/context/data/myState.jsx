@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MyContext from "./myContext";
-import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, QuerySnapshot, setDoc, Timestamp } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, orderBy, query, QuerySnapshot, setDoc, Timestamp } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { fireDB}from "../../firebase/FirebaseConfig"
 
@@ -43,12 +43,8 @@ function MyState(props) {
         if(products.title==null || products.price==null || products.imageUrl==null || products.category==null || products.description==null){
             return toast.error('Please fill all fields')
         }
-
-
-     
         setLoading(true)
-
-
+        
         try {
             const productRef=collection(fireDB,'products')
             await addDoc(productRef,products)
@@ -101,12 +97,14 @@ function MyState(props) {
             getProductData();
         },[]);
 
+        const edithandle=(item)=>{
+            setProducts(item)
+        }
+
 
 // update product function
 
-const edithandle=(item)=>{
-    setProducts(item)
-}
+
 const updateProduct=async()=>{
     console.log("Updating product:", products); // Debugging line
     if (!products.id) {
@@ -148,11 +146,66 @@ const deleteProduct=async(item)=>{
     }
 }
 
+
+const [order, setOrder] = useState([]);
+
+const getOrderData = async () => {
+    setLoading(true)
+    try {
+        const result = await getDocs(collection(fireDB, "order"))
+        const ordersArray = [];
+        result.forEach((doc) => {
+            ordersArray.push(doc.data());
+            setLoading(false)
+        });
+        setOrder(ordersArray);
+        console.log(ordersArray)
+        setLoading(false);
+    } catch (error) {
+        console.log(error)
+        setLoading(false)
+    }
+}
+
+const [user, setUser] = useState([]);
+
+const getUserData = async () => {
+    setLoading(true)
+    try {
+        const result = await getDocs(collection(fireDB, "users"))
+        const usersArray = [];
+        result.forEach((doc) => {
+            usersArray.push(doc.data());
+            setLoading(false)
+        });
+        setUser(usersArray);
+        console.log(usersArray)
+        setLoading(false);
+    } catch (error) {
+        console.log(error)
+        setLoading(false)
+    }
+}
+
+useEffect(() => {
+    getOrderData();
+    getUserData();
+}, []);
+
+
+const [searchkey, setSearchkey] = useState('')
+const [filterType, setFilterType] = useState('')
+const [filterPrice, setFilterPrice] = useState('')
+
+
+
     
     return (
        <MyContext.Provider value={{mode,toggleMode,loading,setLoading,
         products,setProducts,addProduct,product,
-        edithandle,updateProduct,deleteProduct
+        edithandle,updateProduct,deleteProduct,order,
+        user,  searchkey, setSearchkey,filterType, setFilterType,
+        filterPrice, setFilterPrice
        }}>
         {props.children}
        </MyContext.Provider>
